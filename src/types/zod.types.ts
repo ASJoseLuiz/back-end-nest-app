@@ -9,6 +9,7 @@ export const validationBodySchema = z.object({
 });
 
 export const deleteAccountBodySchema = z.object({
+  email: z.string().email(),
   password: z.string().regex(regex),
 });
 

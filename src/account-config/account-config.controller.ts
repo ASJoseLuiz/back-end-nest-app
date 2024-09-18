@@ -5,16 +5,17 @@ import {
   Patch,
   UseGuards,
   UsePipes,
+  Request,
 } from "@nestjs/common";
 import { hash } from "bcrypt";
 import { AccountService } from "src/account/account.service";
 import { AuthenticateGuard } from "src/guards/authentication.guard";
 import { ZodValidation } from "src/pipes/zod.validation.pipe";
 import {
+  deleteAccountBodySchema,
+  DeleteAccountBodySchema,
   UpdatePasswordBodySchema,
   updatePasswordBodySchema,
-  ValidationBodySchema,
-  validationBodySchema,
 } from "src/types/zod.types";
 
 @Controller()
@@ -23,23 +24,28 @@ export class AccountConfigController {
 
   @Delete()
   @UseGuards(AuthenticateGuard)
-  @UsePipes(new ZodValidation(validationBodySchema))
-  public async handleDeleteAccount(
-    @Body() body: ValidationBodySchema
+  @UsePipes(new ZodValidation(deleteAccountBodySchema))
+  public async handleDeleteAccountByID(
+    @Request() req,
+    @Body() body: DeleteAccountBodySchema
   ): Promise<void> {
+    const id = req.user.sub; // Pegando o ID do usuário do JWT token
     const { email, password } = body;
-    await this.accountService.deleteAccount(email, password);
+    await this.accountService.deleteAccountById(id, email, password);
   }
 
   @Patch()
   @UseGuards(AuthenticateGuard)
   @UsePipes(new ZodValidation(updatePasswordBodySchema))
   public async handleUpdatePassword(
+    @Request() req,
     @Body() body: UpdatePasswordBodySchema
   ): Promise<void> {
+    const id = req.user.sub;
     const { email, currentPassword, newPassword } = body;
     const hashedNewPassword = await hash(newPassword, 8);
-    await this.accountService.updatePassword(
+    await this.accountService.updatePasswordById(
+      id,
       email,
       currentPassword,
       hashedNewPassword

@@ -14,6 +14,39 @@ import { Account } from "src/entities/account.entitie";
 export class AccountService implements AccountServiceInterface {
   constructor(private readonly prismaService: PrismaService) {}
 
+  public async deleteAccountById(
+    id: string,
+    email: string,
+    password: string
+  ): Promise<void> {
+    try {
+      const verifyAccount = await this.prismaService.user.findUnique({
+        where: { id },
+      });
+
+      if (!verifyAccount) {
+        throw new NotFoundException();
+      }
+
+      const getAccountByEmail = await this.prismaService.user.findUnique({
+        where: { email },
+      });
+
+      if (verifyAccount.id != getAccountByEmail.id) {
+        // id do token vs id do email passado no body
+        throw new UnauthorizedException("Usuário não pode alterar esta conta");
+      }
+
+      if (!compareSync(password, verifyAccount.password)) {
+        throw new UnauthorizedException("Senha inválida");
+      }
+
+      await this.prismaService.user.delete({ where: { id } });
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
   public async createAccount(email: string, password: string): Promise<void> {
     try {
       const verifyAccount = await this.prismaService.user.findUnique({
@@ -30,65 +63,35 @@ export class AccountService implements AccountServiceInterface {
     }
   }
 
-  public async deleteAccount(email: string, password: string): Promise<void> {
-    try {
-      const verifyAccount = await this.prismaService.user.findUnique({
-        where: { email },
-      });
-
-      if (!verifyAccount) {
-        throw new NotFoundException();
-      }
-
-      if (!compareSync(password, verifyAccount.password)) {
-        throw new UnauthorizedException("Senha inválida");
-      }
-
-      await this.prismaService.user.delete({ where: { email } });
-    } catch (err) {
-      throw new InternalServerErrorException(err);
-    }
-  }
-
-  public async deleteAccountByID(id: string, password: string): Promise<void> {
-    try {
-      const verifyAccount = await this.prismaService.user.findUnique({
-        where: { id },
-      });
-
-      if (!verifyAccount) {
-        throw new NotFoundException();
-      }
-
-      if (!compareSync(password, verifyAccount.password)) {
-        throw new UnauthorizedException("Senha inválida");
-      }
-
-      await this.prismaService.user.delete({ where: { id } });
-    } catch (err) {
-      throw new InternalServerErrorException(err);
-    }
-  }
-
-  public async updatePassword(
+  public async updatePasswordById(
+    id: string,
     email: string,
     currentPassword: string,
     newPassword: string
   ): Promise<void> {
     try {
-      const verifyUser = await this.prismaService.user.findUnique({
-        where: { email },
+      const verifyAccount = await this.prismaService.user.findUnique({
+        where: { id },
       });
-      if (!verifyUser) {
+      if (!verifyAccount) {
         throw new NotFoundException();
       }
 
-      if (!compareSync(currentPassword, verifyUser.password)) {
+      const getAccountByEmail = await this.prismaService.user.findUnique({
+        where: { email },
+      });
+
+      if (verifyAccount.id != getAccountByEmail.id) {
+        // id do token vs id do email passado no body
+        throw new UnauthorizedException("Usuário não pode alterar esta conta");
+      }
+
+      if (!compareSync(currentPassword, verifyAccount.password)) {
         throw new UnauthorizedException("Senha inválida");
       }
 
       await this.prismaService.user.update({
-        where: { email },
+        where: { id },
         data: { password: newPassword },
       });
     } catch (err) {

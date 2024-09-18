@@ -5,16 +5,11 @@ import { AccountModule } from "./account/account.module";
 import { AuthModule } from "./auth/auth.module";
 import { AccountService } from "./account/account.service";
 import { AuthService } from "./auth/auth.service";
-import { CreateAccountController } from "./create-account/create-account.controller";
 import { PrismaModule } from "./prisma/prisma.module";
 import { PrismaService } from "./prisma/prisma.service";
-import { GetAccountsController } from "./account/get-accounts.controller";
-import { AccountConfigController } from "./account-config/account-config.controller";
 import { JwtService } from "@nestjs/jwt";
-import { LoginController } from "./auth/login-account.controller";
 import { RouterModule } from "@nestjs/core";
 import { HomeModule } from "./home/home.module";
-import { HomeController } from "./home/home.controller";
 import { CreateAccountModule } from "./create-account/create-account.module";
 import { AccountConfigModule } from "./account-config/account-config.module";
 

@@ -2,10 +2,11 @@ import { Account } from "src/entities/account.entitie";
 
 export interface AccountServiceInterface {
   createAccount(email: string, password: string): Promise<void>;
-  deleteAccount(email: string, password: string): Promise<void>;
-  updatePassword(
+  deleteAccountById(id: string, email: string, password: string): Promise<void>;
+  updatePasswordById(
+    id: string,
     email: string,
-    oldPassword: string,
+    currentPassword: string,
     newPassword: string
   ): Promise<void>;
   getAccounts(): Promise<Account[]>;

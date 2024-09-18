@@ -111,7 +111,7 @@ export class AccountService implements AccountServiceInterface {
     try {
       return await this.prismaService.user.findUnique({ where: { email } });
     } catch (err) {
-      throw new InternalServerErrorException(err);
+      throw new NotFoundException(err);
     }
   }
 }
